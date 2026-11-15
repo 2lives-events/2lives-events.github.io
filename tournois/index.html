@@ -3060,6 +3060,11 @@ document.addEventListener('click', function (e) {
     case 'archive': if (armConfirm('archive:' + id)) archiveT(tById(id)); break;
     case 'reset': if (armConfirm('reset:' + id)) resetT(tById(id)); break;
     case 'del-t': if (armConfirm('del-t:' + id)) deleteT(tById(id)); break;
+    case 'del-e': {
+      if (tournoisOf(id).length) { toast('Supprime d’abord les tournois de cet événement (onglet Réglages de chaque tournoi).', true); break; }
+      if (armConfirm('del-e:' + id)) { remove('events/' + id); S.sheet = null; location.hash = '#'; toast('Événement supprimé.'); }
+      break;
+    }
     case 'logo-clear': { var c = Object.assign({}, config()); delete c[id]; put('config/marque', c); break; }
     case 'make-test': {
       var out = $('#maketest'); out.textContent = 'Test en cours…';
@@ -3257,7 +3262,7 @@ function shHead(title, lead, closable) {
 function renderSheet() {
   var el = $('#sheet'), sh = S.sheet;
   if (!sh) { el.innerHTML = ''; el.dataset.k = ''; return; }
-  var sig = JSON.stringify(sh) + (sh.type === 'bk' ? JSON.stringify(S.confirm) : sh.type === 'player' ? [S.confirm['pdel:' + sh.pid], S.confirm['pwd:' + sh.pid]].join() : '');
+  var sig = JSON.stringify(sh) + (sh.type === 'bk' ? JSON.stringify(S.confirm) : sh.type === 'event' ? String(S.confirm['del-e:' + sh.id]) : sh.type === 'player' ? [S.confirm['pdel:' + sh.pid], S.confirm['pwd:' + sh.pid]].join() : '');
   if (sh.tid && sh.mid) { var tq = tById(sh.tid), Rq = tq && resolveT(tq), xq = Rq && Rq.st[sh.mid]; if (xq) sig += JSON.stringify([xq.p, xq.real, xq.status, xq.poste]); } // joueurs modifiés ailleurs : la feuille se met à jour
   if (el.dataset.k === sig && el.innerHTML) return;
   var first = !el.innerHTML;
@@ -3307,7 +3312,8 @@ function renderSheet() {
       '<label class="f">Compte Instagram<input class="i" name="instagram" value="' + esc(ev.instagram || '') + '" placeholder="2lcs_fr"></label>' +
       '<label class="f">Habillage<select class="i" name="theme"><option value="2lives"' + (ev.theme !== '2lcs' ? ' selected' : '') + '>2 Lives</option><option value="2lcs"' + (ev.theme === '2lcs' ? ' selected' : '') + '>2LCS</option></select></label></div>' +
       '<label class="check" style="margin-top:10px"><input type="checkbox" name="circuit"' + (ev.circuit ? ' checked' : '') + '>Étape du circuit 2LCS : le vainqueur représente la ville</label>' +
-      '<div class="sh-f"><span></span><span class="row"><button type="button" class="btn ghost" data-act="sheet-close">Annuler</button><button class="btn pri" type="submit">' + (sh.id ? 'Enregistrer' : 'Créer l’événement') + '</button></span></div></form>';
+      '<div class="sh-f">' + (sh.id && S.canWrite ? '<button type="button" class="btn danger' + (S.confirm['del-e:' + sh.id] ? ' armed' : '') + '" data-act="del-e" data-id="' + esc(sh.id) + '">' + (S.confirm['del-e:' + sh.id] ? 'Confirmer la suppression' : 'Supprimer l’événement') + '</button>' : '<span></span>') +
+      '<span class="row"><button type="button" class="btn ghost" data-act="sheet-close">Annuler</button><button class="btn pri" type="submit">' + (sh.id ? 'Enregistrer' : 'Créer l’événement') + '</button></span></div></form>';
   } else if (sh.type === 'tnew') {
     body = '<form data-form="tnew">' + shHead('Nouveau tournoi', 'Format, Bo et inscriptions par message se règlent ensuite dans l’onglet Réglages du tournoi.') + '<div class="form">' +
       '<label class="f">Jeu<select class="i" name="jeu">' + Object.keys(GAMES).map(function (k) { return '<option value="' + k + '">' + esc(GAMES[k].nom) + '</option>'; }).join('') + '</select></label>' +
