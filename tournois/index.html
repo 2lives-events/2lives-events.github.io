@@ -3768,7 +3768,17 @@ function boot() {
   use('downloads').then(function (d) { S.dl = d; });
   use('assets').then(function (a) { S.assets = a; scheduleUpdate(); });
 }
-window.__2lt = { reconcileDM: reconcileDM, planImport: planImport, planSt: planSt, qb: function () { return QB.length; }, archiveT: archiveT, REJ: REJ, TAB: TAB, autoBackups: autoBackups, adoptOrphans: adoptOrphans, localSnap: localSnap, S: S, OV: OV, heal: healConflicts, canAutoCall: canAutoCall, view: view, docv: docv, Q: Q, resolveT: resolveT, tById: tById, tournoisOf: tournoisOf, eventLoad: eventLoad, joueursOf: joueursOf, pKeys: pKeys, nm: nm, dmLink: dmLink, setDM: setDM };
+/* reprise des données de l'ancienne version (claude.ai) : { chemin: document } ; les documents déjà présents sont gardés */
+function importDump(d, force) {
+  var n = 0, skip = 0;
+  Object.keys(d || {}).forEach(function (path) {
+    if (!/^(events|tournaments|config)(\/[A-Za-z0-9_.:@+-]+)+$/.test(path) || path.split('/').length % 2) return;
+    if (!force && docv(path)) { skip++; return; }
+    put(path, d[path]); n++;
+  });
+  return { ecrits: n, gardes: skip };
+}
+window.__2lt = { importDump: importDump, reconcileDM: reconcileDM, planImport: planImport, planSt: planSt, qb: function () { return QB.length; }, archiveT: archiveT, REJ: REJ, TAB: TAB, autoBackups: autoBackups, adoptOrphans: adoptOrphans, localSnap: localSnap, S: S, OV: OV, heal: healConflicts, canAutoCall: canAutoCall, view: view, docv: docv, Q: Q, resolveT: resolveT, tById: tById, tournoisOf: tournoisOf, eventLoad: eventLoad, joueursOf: joueursOf, pKeys: pKeys, nm: nm, dmLink: dmLink, setDM: setDM };
 boot();
 })();
 </script>
