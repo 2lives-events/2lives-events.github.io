@@ -1,0 +1,14 @@
+{
+  "name": "2 Lives Tournois",
+  "short_name": "Tournois",
+  "lang": "fr",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#10034A",
+  "theme_color": "#10034A",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
